@@ -1,0 +1,16 @@
+# 本项目零第三方依赖，全部使用 Python 标准库实现
+# （csv / sqlite3 / json / random / datetime / math）
+#
+# 因此 requirements.txt 为空——这本身是本项目的设计亮点：
+#   1. 不需要 pip install 任何东西，克隆下来就能跑
+#   2. 不需要 pandas / numpy（编译困难），任何 Python 3.8+ 环境都能复现
+#   3. 图表为手写 SVG，不需要 matplotlib
+#
+# 若你确实想用 pip 管理环境，执行：
+#   python -m venv .venv
+#   .venv/Scripts/activate      # Windows
+#   source .venv/bin/activate   # macOS / Linux
+#   pip install -r requirements.txt   # 会安装 0 个包，属正常
+#
+# 运行环境要求：
+#   Python >= 3.8

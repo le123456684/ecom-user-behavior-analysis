@@ -1,0 +1,193 @@
+{
+  "avg_daily_uv": 1801.0,
+  "total_users": 20000,
+  "total_records": 516322,
+  "peak_hours": [
+    [
+      21,
+      11.21
+    ],
+    [
+      20,
+      10.3
+    ],
+    [
+      22,
+      9.27
+    ]
+  ],
+  "peak_share": 30.78,
+  "avg_uv_工作日": 1835.0,
+  "pv_per_uv_工作日": 7.01,
+  "avg_uv_周末": 1734.0,
+  "pv_per_uv_周末": 8.03,
+  "funnel": {
+    "browse": 19816,
+    "fav": 9053,
+    "cart": 7926,
+    "buy": 1511
+  },
+  "conv_rate": 7.63,
+  "funnel_steps": [
+    {
+      "step": "浏览",
+      "users": 19816,
+      "rate_pct": 100.0,
+      "drop_pct": null,
+      "drop_from": null
+    },
+    {
+      "step": "收藏",
+      "users": 9053,
+      "rate_pct": 45.69,
+      "drop_pct": 54.31,
+      "drop_from": "浏览→收藏"
+    },
+    {
+      "step": "加购",
+      "users": 7926,
+      "rate_pct": 87.55,
+      "drop_pct": 12.45,
+      "drop_from": "收藏→加购"
+    },
+    {
+      "step": "购买",
+      "users": 1511,
+      "rate_pct": 19.06,
+      "drop_pct": 80.94,
+      "drop_from": "加购→购买"
+    }
+  ],
+  "pre_buy": [
+    {
+      "step_before_buy": "pv",
+      "users": 1408,
+      "pct": 45.2
+    },
+    {
+      "step_before_buy": "cart",
+      "users": 707,
+      "pct": 22.7
+    },
+    {
+      "step_before_buy": "fav",
+      "users": 634,
+      "pct": 20.35
+    },
+    {
+      "step_before_buy": "buy",
+      "users": 366,
+      "pct": 11.75
+    }
+  ],
+  "retention": [
+    {
+      "day_n": 0,
+      "avg_retention_pct": 100.0
+    },
+    {
+      "day_n": 1,
+      "avg_retention_pct": 34.15
+    },
+    {
+      "day_n": 2,
+      "avg_retention_pct": 27.95
+    },
+    {
+      "day_n": 3,
+      "avg_retention_pct": 23.07
+    },
+    {
+      "day_n": 4,
+      "avg_retention_pct": 19.15
+    },
+    {
+      "day_n": 5,
+      "avg_retention_pct": 15.79
+    },
+    {
+      "day_n": 6,
+      "avg_retention_pct": 13.56
+    },
+    {
+      "day_n": 7,
+      "avg_retention_pct": 11.47
+    }
+  ],
+  "repeat_rate": 74.72,
+  "user_tier": [
+    {
+      "user_tier": "D-一般活跃",
+      "users": 7560,
+      "pct": 37.8
+    },
+    {
+      "user_tier": "E-低活/沉默",
+      "users": 7490,
+      "pct": 37.45
+    },
+    {
+      "user_tier": "C-高活跃浏览",
+      "users": 3439,
+      "pct": 17.2
+    },
+    {
+      "user_tier": "A-高频购买",
+      "users": 946,
+      "pct": 4.73
+    },
+    {
+      "user_tier": "B-有过购买",
+      "users": 565,
+      "pct": 2.83
+    }
+  ],
+  "opportunity": [
+    {
+      "category_id": 3,
+      "category_name": "数码电子",
+      "browse_u": 11509,
+      "traffic_share_pct": 15.04,
+      "conv_rate_pct": 4.54,
+      "site_conv_pct": 5.72,
+      "gap_pct": 1.18
+    },
+    {
+      "category_id": 2,
+      "category_name": "男装",
+      "browse_u": 7492,
+      "traffic_share_pct": 9.79,
+      "conv_rate_pct": 5.34,
+      "site_conv_pct": 5.72,
+      "gap_pct": 0.38
+    },
+    {
+      "category_id": 6,
+      "category_name": "运动户外",
+      "browse_u": 7107,
+      "traffic_share_pct": 9.29,
+      "conv_rate_pct": 5.16,
+      "site_conv_pct": 5.72,
+      "gap_pct": 0.55
+    },
+    {
+      "category_id": 10,
+      "category_name": "汽车用品",
+      "browse_u": 6577,
+      "traffic_share_pct": 8.6,
+      "conv_rate_pct": 4.41,
+      "site_conv_pct": 5.72,
+      "gap_pct": 1.31
+    },
+    {
+      "category_id": 8,
+      "category_name": "图书文娱",
+      "browse_u": 5199,
+      "traffic_share_pct": 6.8,
+      "conv_rate_pct": 5.17,
+      "site_conv_pct": 5.72,
+      "gap_pct": 0.54
+    }
+  ],
+  "site_conv": 5.72
+}

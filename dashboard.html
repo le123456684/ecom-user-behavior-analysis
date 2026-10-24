@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<title>电商用户行为 · 核心指标看板</title>
+<style>
+  :root { --pri:#1F3A63; --sec:#2F5BD7; --acc:#B7791F; --red:#B4453C;
+           --grn:#2F6B4F; --grey:#6B7280; --bd:#E3E9F3; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:22px; background:#EEF1F6; color:#222;
+         font-family:"Microsoft YaHei","Segoe UI",sans-serif; font-size:13px; }
+  .wrap { max-width:1180px; margin:0 auto; }
+  header { display:flex; align-items:baseline; justify-content:space-between;
+            margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+  h1 { font-size:20px; color:var(--pri); margin:0; }
+  .hsub { color:var(--grey); font-size:12px; }
+  .bar { background:#fff; border-radius:6px; padding:13px 18px; margin-bottom:14px;
+          display:flex; gap:22px; align-items:center; flex-wrap:wrap;
+          box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .fld { display:flex; align-items:center; gap:7px; font-size:12.5px; }
+  .fld label { color:var(--grey); }
+  select { padding:5px 9px; border:1px solid var(--bd); border-radius:4px;
+            background:#fff; color:#222; cursor:pointer; font-family:inherit; font-size:12.5px; }
+  .presets { display:flex; gap:6px; }
+  .presets button { padding:5px 11px; border:1px solid var(--bd); background:#fff;
+                     border-radius:4px; cursor:pointer; font-family:inherit;
+                     font-size:12px; color:#445; }
+  .presets button:hover { border-color:var(--sec); color:var(--sec); }
+  .presets button.on { background:var(--pri); color:#fff; border-color:var(--pri); }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:14px; }
+  .kpi { background:#fff; border-radius:6px; padding:15px 17px; border-left:3px solid var(--sec);
+          box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .kpi .v { font-size:24px; font-weight:700; color:var(--pri); line-height:1.2;
+             font-variant-numeric:tabular-nums; }
+  .kpi .l { font-size:11.5px; color:var(--grey); margin-top:3px; }
+  .kpi .d { font-size:10.5px; color:#94A3B8; margin-top:1px; }
+  .kpi.w { border-left-color:var(--red); } .kpi.w .v { color:var(--red); }
+  .kpi.g { border-left-color:var(--grn); } .kpi.g .v { color:var(--grn); }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:13px; margin-bottom:13px; }
+  .card { background:#fff; border-radius:6px; padding:16px 18px;
+           box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .card h2 { font-size:13.5px; color:var(--pri); margin:0 0 3px; font-weight:700; }
+  .card .cap { font-size:11px; color:var(--grey); margin-bottom:11px; }
+  .full { grid-column:1/-1; }
+  .note { background:#FFF8E7; border-left:3px solid var(--acc); padding:11px 15px;
+           border-radius:0 4px 4px 0; font-size:11.5px; color:#6B5320; margin-top:12px;
+           line-height:1.7; }
+  .trap { background:#FDF2F1; border-left:3px solid var(--red); padding:13px 17px;
+           border-radius:0 4px 4px 0; font-size:12px; color:#6B2B24; margin-bottom:14px;
+           line-height:1.8; }
+  .trap b { color:var(--red); }
+  .cmp { display:inline-block; background:#fff; border:1px solid #F0C9C5; border-radius:4px;
+          padding:2px 9px; margin:0 4px; font-variant-numeric:tabular-nums; }
+  svg { display:block; width:100%; height:auto; }
+  table { border-collapse:collapse; width:100%; font-size:11.5px; }
+  th { background:#F4F6FA; color:#445; padding:6px 8px; text-align:left;
+        font-weight:600; border-bottom:1px solid var(--bd); }
+  td { padding:5.5px 8px; border-bottom:1px solid #F0F3F8;
+        font-variant-numeric:tabular-nums; }
+  tr:hover td { background:#FAFBFD; }
+  .r { text-align:right; } .red { color:var(--red); font-weight:700; }
+  .grn { color:var(--grn); font-weight:700; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:8px; font-size:10.5px; }
+  .pill.r { background:#FDECEC; color:var(--red); }
+  .pill.g { background:#E9F5EF; color:var(--grn); }
+  footer { text-align:center; color:#94A3B8; font-size:11px; margin-top:20px; }
+  @media (max-width:900px) { .grid { grid-template-columns:repeat(2,1fr); }
+                              .row { grid-template-columns:1fr; } }
+</style></head><body>
+<div class="wrap">
+
+<header>
+  <h1>电商用户行为 · 核心指标看板</h1>
+  <div class="hsub">数据范围 <span id="rangeTxt"></span>　|　口径：区间去重用户数</div>
+</header>
+
+<div class="bar">
+  <div class="fld">
+    <label>时间范围</label>
+    <div class="presets" id="presets">
+      <button data-p="all" class="on">全部 30 天</button>
+      <button data-p="first">前 15 天</button>
+      <button data-p="last">后 15 天</button>
+    </div>
+  </div>
+  <div class="fld">
+    <label>类目</label>
+    <select id="catSel"><option value="all">全部类目</option></select>
+  </div>
+  <div class="fld" style="margin-left:auto;color:#94A3B8;font-size:11.5px">
+    筛选后所有指标实时重算
+  </div>
+</div>
+
+<div class="trap">
+  <b>⚠ 口径纠错示例 · 为什么不能把每日 UV 相加</b><br>
+  若把 30 天的「每日去重访客数」直接相加，会得到 <span class="cmp">53,570</span>（用户日/人次），
+  而真实的区间独立访客只有 <span class="cmp">19,816</span> 人——<b>虚高 2.70 倍</b>。<br>
+  连带影响：转化率会被算成 <span class="cmp">2.82%</span>，而真实值是
+  <span class="cmp"><b>7.63%</b></span>。<br>
+  <span style="color:#8A5B6B">本看板已对每个区间预先精确计算去重人数，不做任何简单相加。</span>
+</div>
+
+<div class="grid">
+  <div class="kpi"><div class="v" id="k1">-</div><div class="l">访客数 UV</div><div class="d" id="k1d"></div></div>
+  <div class="kpi"><div class="v" id="k2">-</div><div class="l">浏览量 PV</div><div class="d" id="k2d"></div></div>
+  <div class="kpi"><div class="v" id="k3">-</div><div class="l">人均浏览深度</div><div class="d">PV ÷ UV</div></div>
+  <div class="kpi w" id="k4box"><div class="v" id="k4">-</div><div class="l">购买转化率</div><div class="d">购买人数 ÷ 浏览人数</div></div>
+</div>
+
+<div class="row">
+  <div class="card full">
+    <h2>流量趋势</h2>
+    <div class="cap">蓝线 PV（左轴，可加总）· 橙线 UV（右轴，每日去重，不可跨日相加）</div>
+    <div id="trend"></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>转化漏斗</h2>
+    <div class="cap" id="funnelCap"></div>
+    <div id="funnel"></div>
+  </div>
+  <div class="card">
+    <h2>全天时段分布</h2>
+    <div class="cap">各时段浏览量占比（北京时间），红柱为峰值时段</div>
+    <div id="hourly"></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card full">
+    <h2>类目流量与转化率对比</h2>
+    <div class="cap">柱为流量占比，橙线为转化率；红色柱 = 高流量低转化机会点</div>
+    <div id="catChart"></div>
+    <table id="catTable" style="margin-top:12px"></table>
+  </div>
+</div>
+
+<div class="note" id="caliberNote"></div>
+
+<footer>数据口径详见指标字典　|　本看板为静态数据驱动的交互演示</footer>
+</div>
+
+<script>
+const CUBE = {"dates":["2025-11-01","2025-11-02","2025-11-03","2025-11-04","2025-11-05","2025-11-06","2025-11-07","2025-11-08","2025-11-09","2025-11-10","2025-11-11","2025-11-12","2025-11-13","2025-11-14","2025-11-15","2025-11-16","2025-11-17","2025-11-18","2025-11-19","2025-11-20","2025-11-21","2025-11-22","2025-11-23","2025-11-24","2025-11-25","2025-11-26","2025-11-27","2025-11-28","2025-11-29","2025-11-30"],"ranges":{"all":["2025-11-01","2025-11-30"],"first":["2025-11-01","2025-11-15"],"last":["2025-11-16","2025-11-30"]},"platform":{"all":{"buy":{"u":1511,"c":15410},"cart":{"u":7926,"c":48511},"fav":{"u":9053,"c":46010},"pv":{"u":19816,"c":406391}},"first":{"buy":{"u":723,"c":5046},"cart":{"u":3791,"c":17555},"fav":{"u":4271,"c":17198},"pv":{"u":9845,"c":156862}},"last":{"buy":{"u":1294,"c":10364},"cart":{"u":5754,"c":30956},"fav":{"u":6658,"c":28812},"pv":{"u":13843,"c":249529}}},"category":{"all":{"1":{"pv":10307,"fav":3005,"cart":2891,"buy":652,"pvC":65411},"2":{"pv":7492,"fav":1937,"cart":1602,"buy":400,"pvC":37045},"3":{"pv":11509,"fav":3675,"cart":2417,"buy":522,"pvC":83230},"4":{"pv":8449,"fav":2204,"cart":2256,"buy":540,"pvC":42182},"5":{"pv":6383,"fav":1508,"cart":1483,"buy":390,"pvC":28101},"6":{"pv":7107,"fav":1770,"cart":1516,"buy":367,"pvC":34582},"7":{"pv":9241,"fav":2578,"cart":2555,"buy":646,"pvC":50663},"8":{"pv":5199,"fav":1135,"cart":1025,"buy":269,"pvC":21061},"9":{"pv":4246,"fav":878,"cart":1094,"buy":297,"pvC":14824},"10":{"pv":6577,"fav":1604,"cart":1263,"buy":290,"pvC":29292}},"first":{"1":{"pv":4881,"fav":1336,"cart":1303,"buy":279,"pvC":25747},"2":{"pv":3456,"fav":840,"cart":709,"buy":159,"pvC":14192},"3":{"pv":5514,"fav":1618,"cart":1024,"buy":207,"pvC":31955},"4":{"pv":3896,"fav":956,"cart":987,"buy":248,"pvC":16304},"5":{"pv":2879,"fav":652,"cart":636,"buy":153,"pvC":10834},"6":{"pv":3239,"fav":743,"cart":635,"buy":155,"pvC":13765},"7":{"pv":4311,"fav":1117,"cart":1145,"buy":265,"pvC":19543},"8":{"pv":2332,"fav":469,"cart":415,"buy":95,"pvC":7531},"9":{"pv":1884,"fav":354,"cart":480,"buy":125,"pvC":5739},"10":{"pv":2984,"fav":678,"cart":518,"buy":113,"pvC":11252}},"last":{"1":{"pv":7282,"fav":2116,"cart":2044,"buy":524,"pvC":39664},"2":{"pv":5219,"fav":1338,"cart":1103,"buy":318,"pvC":22853},"3":{"pv":8110,"fav":2609,"cart":1746,"buy":405,"pvC":51275},"4":{"pv":5925,"fav":1527,"cart":1612,"buy":419,"pvC":25878},"5":{"pv":4448,"fav":1024,"cart":1040,"buy":320,"pvC":17267},"6":{"pv":4929,"fav":1229,"cart":1064,"buy":286,"pvC":20817},"7":{"pv":6462,"fav":1762,"cart":1804,"buy":523,"pvC":31120},"8":{"pv":3558,"fav":787,"cart":724,"buy":213,"pvC":13530},"9":{"pv":2842,"fav":607,"cart":739,"buy":224,"pvC":9085},"10":{"pv":4568,"fav":1096,"cart":885,"buy":212,"pvC":18040}}},"categories":[["1","女装"],["2","男装"],["3","数码电子"],["4","食品生鲜"],["5","母婴用品"],["6","运动户外"],["7","美妆个护"],["8","图书文娱"],["9","家居家装"],["10","汽车用品"]],"daily":{"2025-11-01":{"buy":{"u":26,"c":63},"cart":{"u":170,"c":370},"fav":{"u":200,"c":386},"pv":{"u":647,"c":3741}},"2025-11-02":{"buy":{"u":49,"c":125},"cart":{"u":249,"c":519},"fav":{"u":293,"c":543},"pv":{"u":857,"c":5185}},"2025-11-03":{"buy":{"u":74,"c":186},"cart":{"u":333,"c":668},"fav":{"u":370,"c":651},"pv":{"u":1083,"c":6245}},"2025-11-04":{"buy":{"u":79,"c":181},"cart":{"u":350,"c":669},"fav":{"u":395,"c":710},"pv":{"u":1185,"c":6842}},"2025-11-05":{"buy":{"u":95,"c":231},"cart":{"u":410,"c":828},"fav":{"u":466,"c":810},"pv":{"u":1362,"c":8291}},"2025-11-06":{"buy":{"u":102,"c":269},"cart":{"u":462,"c":956},"fav":{"u":529,"c":961},"pv":{"u":1406,"c":8829}},"2025-11-07":{"buy":{"u":126,"c":290},"cart":{"u":533,"c":1176},"fav":{"u":616,"c":1181},"pv":{"u":1551,"c":10358}},"2025-11-08":{"buy":{"u":156,"c":408},"cart":{"u":605,"c":1421},"fav":{"u":702,"c":1399},"pv":{"u":1656,"c":13097}},"2025-11-09":{"buy":{"u":155,"c":412},"cart":{"u":639,"c":1455},"fav":{"u":732,"c":1408},"pv":{"u":1704,"c":13495}},"2025-11-10":{"buy":{"u":139,"c":351},"cart":{"u":610,"c":1277},"fav":{"u":690,"c":1282},"pv":{"u":1717,"c":11736}},"2025-11-11":{"buy":{"u":146,"c":407},"cart":{"u":670,"c":1456},"fav":{"u":751,"c":1397},"pv":{"u":1824,"c":12326}},"2025-11-12":{"buy":{"u":174,"c":441},"cart":{"u":682,"c":1474},"fav":{"u":764,"c":1461},"pv":{"u":1845,"c":13018}},"2025-11-13":{"buy":{"u":198,"c":519},"cart":{"u":698,"c":1571},"fav":{"u":791,"c":1456},"pv":{"u":1834,"c":13241}},"2025-11-14":{"buy":{"u":208,"c":518},"cart":{"u":722,"c":1759},"fav":{"u":873,"c":1632},"pv":{"u":1920,"c":13983}},"2025-11-15":{"buy":{"u":222,"c":645},"cart":{"u":803,"c":1956},"fav":{"u":917,"c":1921},"pv":{"u":1931,"c":16475}},"2025-11-16":{"buy":{"u":227,"c":653},"cart":{"u":806,"c":2088},"fav":{"u":914,"c":1978},"pv":{"u":1965,"c":17044}},"2025-11-17":{"buy":{"u":203,"c":516},"cart":{"u":757,"c":1752},"fav":{"u":861,"c":1639},"pv":{"u":1974,"c":14548}},"2025-11-18":{"buy":{"u":214,"c":561},"cart":{"u":811,"c":1855},"fav":{"u":934,"c":1795},"pv":{"u":2055,"c":15467}},"2025-11-19":{"buy":{"u":241,"c":629},"cart":{"u":774,"c":1799},"fav":{"u":913,"c":1779},"pv":{"u":2006,"c":15299}},"2025-11-20":{"buy":{"u":218,"c":550},"cart":{"u":753,"c":1715},"fav":{"u":861,"c":1652},"pv":{"u":2013,"c":14753}},"2025-11-21":{"buy":{"u":223,"c":615},"cart":{"u":793,"c":1943},"fav":{"u":920,"c":1831},"pv":{"u":2043,"c":15322}},"2025-11-22":{"buy":{"u":258,"c":719},"cart":{"u":862,"c":2154},"fav":{"u":1002,"c":2080},"pv":{"u":2031,"c":18158}},"2025-11-23":{"buy":{"u":245,"c":770},"cart":{"u":851,"c":2356},"fav":{"u":995,"c":2127},"pv":{"u":2055,"c":18663}},"2025-11-24":{"buy":{"u":227,"c":632},"cart":{"u":887,"c":2024},"fav":{"u":972,"c":1853},"pv":{"u":2142,"c":16598}},"2025-11-25":{"buy":{"u":244,"c":690},"cart":{"u":853,"c":2040},"fav":{"u":971,"c":1900},"pv":{"u":2102,"c":16104}},"2025-11-26":{"buy":{"u":232,"c":636},"cart":{"u":775,"c":1869},"fav":{"u":927,"c":1746},"pv":{"u":2008,"c":15267}},"2025-11-27":{"buy":{"u":269,"c":756},"cart":{"u":876,"c":2083},"fav":{"u":948,"c":1904},"pv":{"u":2151,"c":16223}},"2025-11-28":{"buy":{"u":292,"c":851},"cart":{"u":900,"c":2215},"fav":{"u":997,"c":1994},"pv":{"u":2164,"c":16756}},"2025-11-29":{"buy":{"u":303,"c":857},"cart":{"u":951,"c":2536},"fav":{"u":1074,"c":2293},"pv":{"u":2166,"c":19902}},"2025-11-30":{"buy":{"u":286,"c":929},"cart":{"u":933,"c":2527},"fav":{"u":1053,"c":2241},"pv":{"u":2173,"c":19425}}},"dailyCat":{"2025-11-01":{"1":658,"2":311,"3":778,"4":444,"5":284,"6":272,"7":467,"8":156,"9":130,"10":241},"2025-11-02":{"1":846,"2":442,"3":972,"4":534,"5":362,"6":470,"7":685,"8":293,"9":203,"10":378},"2025-11-03":{"1":1074,"2":622,"3":1254,"4":665,"5":386,"6":531,"7":749,"8":271,"9":256,"10":437},"2025-11-04":{"1":1031,"2":770,"3":1466,"4":703,"5":445,"6":637,"7":781,"8":300,"9":247,"10":462},"2025-11-05":{"1":1360,"2":716,"3":1697,"4":874,"5":588,"6":774,"7":1052,"8":395,"9":309,"10":526},"2025-11-06":{"1":1493,"2":803,"3":1637,"4":906,"5":638,"6":816,"7":1130,"8":436,"9":318,"10":652},"2025-11-07":{"1":1650,"2":1015,"3":2110,"4":1023,"5":691,"6":984,"7":1192,"8":505,"9":398,"10":790},"2025-11-08":{"1":2156,"2":1085,"3":2643,"4":1296,"5":913,"6":1241,"7":1774,"8":665,"9":465,"10":859},"2025-11-09":{"1":2252,"2":1034,"3":2809,"4":1482,"5":907,"6":1197,"7":1657,"8":696,"9":476,"10":985},"2025-11-10":{"1":1911,"2":1062,"3":2329,"4":1279,"5":819,"6":1010,"7":1502,"8":501,"9":378,"10":945},"2025-11-11":{"1":2098,"2":1114,"3":2490,"4":1225,"5":855,"6":1049,"7":1599,"8":556,"9":449,"10":891},"2025-11-12":{"1":1987,"2":1179,"3":2664,"4":1350,"5":944,"6":1127,"7":1642,"8":649,"9":519,"10":957},"2025-11-13":{"1":2106,"2":1228,"3":2804,"4":1416,"5":930,"6":1133,"7":1628,"8":646,"9":465,"10":885},"2025-11-14":{"1":2495,"2":1316,"3":2889,"4":1363,"5":947,"6":1116,"7":1683,"8":681,"9":520,"10":973},"2025-11-15":{"1":2630,"2":1495,"3":3413,"4":1744,"5":1125,"6":1408,"7":2002,"8":781,"9":606,"10":1271},"2025-11-16":{"1":2705,"2":1514,"3":3468,"4":1776,"5":1254,"6":1325,"7":2150,"8":986,"9":608,"10":1258},"2025-11-17":{"1":2431,"2":1437,"3":2922,"4":1601,"5":988,"6":1104,"7":1779,"8":781,"9":563,"10":942},"2025-11-18":{"1":2557,"2":1453,"3":3203,"4":1598,"5":1020,"6":1258,"7":1840,"8":845,"9":587,"10":1106},"2025-11-19":{"1":2399,"2":1477,"3":3155,"4":1595,"5":1053,"6":1240,"7":1911,"8":856,"9":497,"10":1116},"2025-11-20":{"1":2387,"2":1347,"3":3120,"4":1453,"5":988,"6":1263,"7":1854,"8":737,"9":538,"10":1066},"2025-11-21":{"1":2384,"2":1440,"3":3151,"4":1581,"5":1005,"6":1229,"7":1999,"8":800,"9":557,"10":1176},"2025-11-22":{"1":2958,"2":1560,"3":3849,"4":1775,"5":1373,"6":1494,"7":2202,"8":995,"9":725,"10":1227},"2025-11-23":{"1":3050,"2":1730,"3":3820,"4":2008,"5":1296,"6":1481,"7":2351,"8":968,"9":610,"10":1349},"2025-11-24":{"1":2620,"2":1525,"3":3537,"4":1619,"5":1111,"6":1334,"7":2132,"8":937,"9":583,"10":1200},"2025-11-25":{"1":2539,"2":1538,"3":3270,"4":1667,"5":1167,"6":1348,"7":2007,"8":865,"9":598,"10":1105},"2025-11-26":{"1":2370,"2":1329,"3":3213,"4":1686,"5":1034,"6":1267,"7":1852,"8":800,"9":536,"10":1180},"2025-11-27":{"1":2482,"2":1561,"3":3271,"4":1665,"5":1091,"6":1482,"7":2114,"8":842,"9":593,"10":1122},"2025-11-28":{"1":2611,"2":1482,"3":3525,"4":1703,"5":1059,"6":1492,"7":2040,"8":927,"9":651,"10":1266},"2025-11-29":{"1":3084,"2":1736,"3":4026,"4":2063,"5":1358,"6":1663,"7":2620,"8":1146,"9":727,"10":1479},"2025-11-30":{"1":3087,"2":1724,"3":3745,"4":2088,"5":1470,"6":1837,"7":2269,"8":1045,"9":712,"10":1448}},"hours":[5605,1876,1806,1864,1868,1885,3853,7679,11294,15226,17100,18883,18989,17248,17083,17068,19099,22847,26599,34332,41877,45548,37691,19071],"totalBuyers":1511,"repeatBuyers":1129};
+
+const BEH = ["pv","fav","cart","buy"];
+const BNAME = {pv:"浏览",fav:"收藏",cart:"加购",buy:"购买"};
+const CP = ["#1F3A63","#3A66A8","#2F5BD7","#B7791F"];
+
+let curRange = "all";
+let catSel = "all";
+
+CUBE.categories.forEach(([cid,name]) => {
+  const o = document.createElement("option");
+  o.value = cid; o.textContent = name;
+  document.getElementById("catSel").appendChild(o);
+});
+
+function fmt(n) { return (n||0).toLocaleString("zh-CN"); }
+function pct(a,b) { return b ? (a/b*100) : 0; }
+
+// 取当前筛选下的行为人数（区间级，精确去重）
+function stats() {
+  if (catSel === "all") return CUBE.platform[curRange];
+  const c = CUBE.category[curRange][catSel] || {};
+  return {pv:{u:c.pv||0,c:c.pvC||0}, fav:{u:c.fav||0,c:c.fav||0},
+           cart:{u:c.cart||0,c:c.cart||0}, buy:{u:c.buy||0,c:c.buy||0}};
+}
+
+// ---------- KPI ----------
+function renderKPI() {
+  const s = stats();
+  const uv = s.pv.u, pv = s.pv.c, buy = s.buy.u;
+  const conv = pct(buy, uv);
+  document.getElementById("k1").textContent = fmt(uv);
+  document.getElementById("k2").textContent = fmt(pv);
+  document.getElementById("k3").textContent = uv ? (pv/uv).toFixed(2) : "-";
+  document.getElementById("k4").textContent = conv.toFixed(2) + "%";
+  document.getElementById("k4box").className = "kpi " + (conv < 5 ? "w" : (conv > 8 ? "g" : ""));
+  const r = CUBE.ranges[curRange];
+  document.getElementById("k1d").textContent = r[0].slice(5) + " ~ " + r[1].slice(5);
+  document.getElementById("k2d").textContent = "区间累计（可加总指标）";
+  document.getElementById("rangeTxt").textContent = r[0] + " ~ " + r[1];
+}
+
+// ---------- 趋势 ----------
+function renderTrend() {
+  const dates = CUBE.dates;
+  const data = dates.map(dt => {
+    const d = CUBE.daily[dt] || {};
+    const g = b => (d[b] ? d[b] : {u:0,c:0});
+    return {dt, uv: g("pv").u, pv: g("pv").c};
+  });
+  const W = 1080, H = 220, pl = 52, pr = 54, pt = 14, pb = 30;
+  const cw = W - pl - pr, ch = H - pt - pb;
+  const muv = Math.max(...data.map(d=>d.uv),1) * 1.15;
+  const mpv = Math.max(...data.map(d=>d.pv),1) * 1.15;
+  const sx = i => pl + cw * i / (data.length-1);
+  const py = v => pt + ch - ch*v/mpv;
+  const uy = v => pt + ch - ch*v/muv;
+  let s = `<svg viewBox="0 0 ${W} ${H}">`;
+  for (let i=0;i<5;i++) {
+    const y = pt + ch*i/4;
+    s += `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#E5E7EB"/>`;
+    s += `<text x="${pl-6}" y="${y+3.5}" font-size="10" fill="#94A3B8" text-anchor="end">${Math.round(mpv*(1-i/4)/1000)}k</text>`;
+    s += `<text x="${W-pr+6}" y="${y+3.5}" font-size="10" fill="#B7791F">${Math.round(muv*(1-i/4)/1000)}k</text>`;
+  }
+  const pl2 = data.map((d,i)=>`${i?'L':'M'}${sx(i).toFixed(1)},${py(d.pv).toFixed(1)}`).join(" ");
+  s += `<path d="${pl2} L${sx(data.length-1).toFixed(1)},${pt+ch} L${pl},${pt+ch} Z" fill="#2F5BD7" opacity="0.10"/>`;
+  s += `<path d="${pl2}" fill="none" stroke="#2F5BD7" stroke-width="2"/>`;
+  const ul = data.map((d,i)=>`${i?'L':'M'}${sx(i).toFixed(1)},${uy(d.uv).toFixed(1)}`).join(" ");
+  s += `<path d="${ul}" fill="none" stroke="#B7791F" stroke-width="1.8"/>`;
+  data.forEach((d,i)=>{
+    if (i%5===0 || i===data.length-1)
+      s += `<text x="${sx(i).toFixed(1)}" y="${H-11}" font-size="10" fill="#94A3B8" text-anchor="middle">${d.dt.slice(5)}</text>`;
+  });
+  s += `<rect x="${pl}" y="2" width="16" height="3" fill="#2F5BD7"/><text x="${pl+21}" y="7.5" font-size="10.5" fill="#445">PV</text>`;
+  s += `<rect x="${pl+56}" y="2" width="16" height="3" fill="#B7791F"/><text x="${pl+77}" y="7.5" font-size="10.5" fill="#445">UV（当日）</text>`;
+  s += "</svg>";
+  document.getElementById("trend").innerHTML = s;
+}
+
+// ---------- 漏斗 ----------
+function renderFunnel() {
+  const s = stats();
+  const steps = BEH.map(b => [BNAME[b], s[b].u]);
+  const W = 500, H = 240, pl = 62, bh = 32, gap = 22, cw = W - pl - 168;
+  const mx = Math.max(steps[0][1],1);
+  let out = `<svg viewBox="0 0 ${W} ${H}">`;
+  steps.forEach(([n,v],i) => {
+    const y = 16 + i*(bh+gap), bw = Math.max(cw*v/mx, 4);
+    out += `<text x="${pl-9}" y="${y+bh/2+4}" font-size="11.5" fill="#334" text-anchor="end">${n}</text>`;
+    out += `<rect x="${pl}" y="${y}" width="${bw.toFixed(1)}" height="${bh}" fill="${CP[i]}" rx="3"/>`;
+    out += `<text x="${pl+bw+8}" y="${y+bh/2+4}" font-size="12" font-weight="700" fill="${CP[i]}">${fmt(v)}</text>`;
+    if (i>0) {
+      const drop = steps[i-1][1] ? (steps[i-1][1]-v)/steps[i-1][1]*100 : 0;
+      const hl = i===3;
+      out += `<text x="${pl+bw+72}" y="${y+bh/2+4}" font-size="10.5" fill="${hl?'#B4453C':'#94A3B8'}" font-weight="${hl?700:400}">↓${drop.toFixed(1)}%</text>`;
+    }
+  });
+  out += "</svg>";
+  document.getElementById("funnel").innerHTML = out;
+  document.getElementById("funnelCap").textContent =
+    (catSel==="all" ? "全站" : "当前类目") + `整体转化率 ${pct(s.buy.u, s.pv.u).toFixed(2)}%（购买人数 ÷ 浏览人数，均为区间去重）`;
+}
+
+// ---------- 时段 ----------
+function renderHourly() {
+  const Hs = CUBE.hours, total = Hs.reduce((a,b)=>a+b,0);
+  const W = 500, H = 240, pl = 34, pr = 10, pt = 22, pb = 28;
+  const cw = W - pl - pr, ch = H - pt - pb;
+  const mx = Math.max(...Hs) * 1.18;
+  const gap = cw/24, bw = gap*0.62;
+  const pi = Hs.indexOf(Math.max(...Hs));
+  let s = `<svg viewBox="0 0 ${W} ${H}">`;
+  for (let i=0;i<5;i++) {
+    const y = pt + ch*i/4;
+    s += `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#E5E7EB"/>`;
+  }
+  Hs.forEach((v,i)=>{
+    const x = pl + gap*i + (gap-bw)/2, bh = ch*v/mx;
+    const col = i===pi ? "#B4453C" : (i>=19&&i<=22 ? "#1F3A63" : "#9DB4D6");
+    s += `<rect x="${x.toFixed(1)}" y="${(pt+ch-bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${col}" rx="1.5"/>`;
+  });
+  [0,3,6,9,12,15,18,21].forEach(i=>{
+    s += `<text x="${(pl+gap*i+gap/2).toFixed(1)}" y="${H-10}" font-size="10" fill="#94A3B8" text-anchor="middle">${i}时</text>`;
+  });
+  s += `<text x="${(pl+gap*pi+gap/2).toFixed(1)}" y="${(pt+ch-ch*Hs[pi]/mx-6).toFixed(1)}" font-size="11" font-weight="700" fill="#B4453C" text-anchor="middle">${(Hs[pi]/total*100).toFixed(1)}%</text>`;
+  s += "</svg>";
+  document.getElementById("hourly").innerHTML = s;
+}
+
+// ---------- 类目对比 ----------
+function renderCat() {
+  const cm = CUBE.category[curRange];
+  const rows = CUBE.categories.map(([cid,name]) => {
+    const c = cm[cid] || {};
+    return {cid, name, browse:c.pv||0, buy:c.buy||0, conv:pct(c.buy||0, c.pv||0)};
+  });
+  const totB = rows.reduce((a,r)=>a+r.browse,0);
+  const totY = rows.reduce((a,r)=>a+r.buy,0);
+  const siteConv = totB ? totY/totB*100 : 0;
+  rows.forEach(r => r.share = totB ? r.browse/totB*100 : 0);
+  const sorted = rows.slice().sort((a,b)=>b.share-a.share);
+
+  const W = 1080, H = 300, pl = 46, pr = 54, pt = 26, pb = 62;
+  const cw = W-pl-pr, ch = H-pt-pb;
+  const mxs = Math.max(...sorted.map(r=>r.share),1) * 1.2;
+  const mxc = Math.max(...sorted.map(r=>r.conv), siteConv) * 1.25;
+  const gap = cw/sorted.length, bw = gap*0.5;
+  let s = `<svg viewBox="0 0 ${W} ${H}">`;
+  for (let i=0;i<5;i++) {
+    const y = pt + ch*i/4;
+    s += `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#EEF1F6"/>`;
+    s += `<text x="${pl-6}" y="${y+3.5}" font-size="10" fill="#94A3B8" text-anchor="end">${(mxs*(1-i/4)).toFixed(0)}%</text>`;
+    s += `<text x="${W-pr+6}" y="${y+3.5}" font-size="10" fill="#B7791F">${(mxc*(1-i/4)).toFixed(1)}%</text>`;
+  }
+  const yref = pt + ch - ch*siteConv/mxc;
+  s += `<line x1="${pl}" y1="${yref.toFixed(1)}" x2="${W-pr}" y2="${yref.toFixed(1)}" stroke="#B4453C" stroke-width="1.2" stroke-dasharray="5,3"/>`;
+  s += `<text x="${W-pr-4}" y="${(yref-5).toFixed(1)}" font-size="10" fill="#B4453C" text-anchor="end">类目均值 ${siteConv.toFixed(2)}%</text>`;
+  const pts = [];
+  sorted.forEach((r,i)=>{
+    const cx = pl + gap*i + gap/2, bh = ch*r.share/mxs;
+    const bad = r.conv < siteConv && r.share > 10;
+    s += `<rect x="${(cx-bw/2).toFixed(1)}" y="${(pt+ch-bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${bad?'#B4453C':'#1F3A63'}" rx="2" opacity="0.88"/>`;
+    pts.push([cx, pt + ch - ch*r.conv/mxc]);
+  });
+  s += `<path d="${pts.map((p,i)=>`${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")}" fill="none" stroke="#B7791F" stroke-width="2"/>`;
+  pts.forEach(p=>{ s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.2" fill="#fff" stroke="#B7791F" stroke-width="1.8"/>`; });
+  sorted.forEach((r,i)=>{
+    const cx = pl + gap*i + gap/2;
+    s += `<text x="${cx.toFixed(1)}" y="${H-40}" font-size="10.5" fill="#445" text-anchor="end" transform="rotate(-40 ${cx.toFixed(1)} ${H-40})">${r.name}</text>`;
+  });
+  s += `<rect x="${pl}" y="4" width="12" height="9" fill="#1F3A63" opacity="0.88"/><text x="${pl+17}" y="12" font-size="10.5" fill="#445">流量占比</text>`;
+  s += `<rect x="${pl+82}" y="4" width="12" height="9" fill="#B4453C" opacity="0.88"/><text x="${pl+99}" y="12" font-size="10.5" fill="#445">高流量低转化</text>`;
+  s += `<rect x="${pl+196}" y="6" width="12" height="3" fill="#B7791F"/><text x="${pl+213}" y="12" font-size="10.5" fill="#445">转化率（右轴）</text>`;
+  s += "</svg>";
+  document.getElementById("catChart").innerHTML = s;
+
+  let t = `<thead><tr><th>类目</th><th class="r">流量占比</th><th class="r">浏览人数</th>
+           <th class="r">购买人数</th><th class="r">转化率</th><th class="r">与均值差</th><th>判定</th></tr></thead><tbody>`;
+  rows.slice().sort((a,b)=>b.browse-a.browse).forEach(r=>{
+    const gv = r.conv - siteConv;
+    const bad = gv < 0 && r.share > 10;
+    t += `<tr><td><strong>${r.name}</strong></td><td class="r">${r.share.toFixed(2)}%</td>
+      <td class="r">${fmt(r.browse)}</td><td class="r">${fmt(r.buy)}</td>
+      <td class="r">${r.conv.toFixed(2)}%</td>
+      <td class="r ${gv<0?'red':'grn'}">${gv>=0?'+':''}${gv.toFixed(2)} pp</td>
+      <td>${bad ? '<span class="pill r">高流量低转化</span>'
+              : (gv>0 ? '<span class="pill g">健康</span>' : '<span class="pill">常态</span>')}</td></tr>`;
+  });
+  t += "</tbody>";
+  document.getElementById("catTable").innerHTML = t;
+
+  const s2 = stats();
+  const worst = rows.slice().sort((a,b)=>b.browse-a.browse).find(r => r.conv < siteConv);
+  document.getElementById("caliberNote").innerHTML =
+    `<strong>口径提示：</strong>本表按「人 × 类目」统计——跨类目用户会被重复计入分母，`
+    + `因此类目汇总转化率 <b>${siteConv.toFixed(2)}%</b> 与全站漏斗口径转化率 `
+    + `<b>${pct(s2.buy.u, s2.pv.u).toFixed(2)}%</b> 不同。两个数字都对，但不能混用：`
+    + `平台级结论用漏斗口径，类目横向对比用本表口径。`
+    + (worst ? `<br><strong>当前最大机会点：</strong>${worst.name} —— 流量占比 ${worst.share.toFixed(2)}%，`
+              + `转化率 ${worst.conv.toFixed(2)}%，低于类目均值 ${(siteConv-worst.conv).toFixed(2)} 个百分点。` : "");
+}
+
+function renderAll() { renderKPI(); renderTrend(); renderFunnel(); renderHourly(); renderCat(); }
+
+document.getElementById("presets").addEventListener("click", e => {
+  if (e.target.tagName !== "BUTTON") return;
+  document.querySelectorAll("#presets button").forEach(b=>b.classList.remove("on"));
+  e.target.classList.add("on");
+  curRange = e.target.dataset.p;
+  renderAll();
+});
+
+document.getElementById("catSel").addEventListener("change", e => {
+  catSel = e.target.value;
+  renderAll();
+});
+
+renderAll();
+</script>
+</body></html>
