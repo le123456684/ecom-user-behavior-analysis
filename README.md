@@ -83,7 +83,7 @@
 
 ```bash
 # 1. 获取代码（本页右上角 Code → 复制 HTTPS 链接，或直接 Download ZIP）
-git clone <本仓库地址>
+git clone https://github.com/le123456684/ecom-user-behavior-analysis.git
 cd ecom-user-behavior-analysis
 
 # 2. 生成模拟数据（真实项目替换为数据下载 / 导入）
